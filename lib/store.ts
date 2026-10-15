@@ -18,6 +18,7 @@ export type ViewMode = "weekly" | "daily" | "monthly" | "yearly";
 
 export interface Note {
   id: string;
+  userId: string; // username of note owner
   type: NoteType;
   content: string; // text content or base64 for image/audio
   mood: Mood;
@@ -25,6 +26,7 @@ export interface Note {
   createdAt: number;
   title?: string;
   audioDuration?: number;
+  time?: string; // HH:MM chosen by user (past or future)
 }
 
 export interface User {
@@ -88,9 +90,10 @@ interface AppState {
   setLanguage: (lang: Language) => void;
   setViewMode: (mode: ViewMode) => void;
   toggleDarkMode: () => void;
-  addNote: (note: Omit<Note, "id" | "createdAt">) => void;
+  addNote: (note: Omit<Note, "id" | "createdAt" | "userId">) => void;
   updateNote: (id: string, updates: Partial<Note>) => void;
   deleteNote: (id: string) => void;
+  getUserNotes: () => Note[];
   setSelectedDate: (date: string) => void;
   setSelectedWeek: (week: number, year: number) => void;
 }
@@ -269,6 +272,7 @@ export const useStore = create<AppState>()(
             {
               ...note,
               id: crypto.randomUUID(),
+              userId: state.currentUser || "",
               createdAt: Date.now(),
             },
           ],
@@ -277,14 +281,22 @@ export const useStore = create<AppState>()(
       updateNote: (id, updates) =>
         set((state) => ({
           notes: state.notes.map((n) =>
-            n.id === id ? { ...n, ...updates } : n
+            n.id === id && n.userId === state.currentUser ? { ...n, ...updates } : n
           ),
         })),
 
       deleteNote: (id) =>
         set((state) => ({
-          notes: state.notes.filter((n) => n.id !== id),
+          notes: state.notes.filter((n) =>
+            !(n.id === id && n.userId === state.currentUser)
+          ),
         })),
+
+      getUserNotes: () => {
+        const { notes, currentUser } = get();
+        if (!currentUser) return [];
+        return notes.filter((n) => n.userId === currentUser);
+      },
 
       setSelectedDate: (date) => set({ selectedDate: date }),
       setSelectedWeek: (week, year) =>

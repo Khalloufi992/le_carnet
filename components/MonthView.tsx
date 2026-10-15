@@ -9,7 +9,8 @@ import { NoteModal } from "./NoteModal";
 const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 
 export function MonthView() {
-  const { language, notes, selectedDate, setSelectedDate, setSelectedWeek, setViewMode } = useStore();
+  const { language, selectedDate, setSelectedDate, setSelectedWeek, setViewMode, getUserNotes } = useStore();
+  const notes = getUserNotes();
   const t = useT(language);
 
   const today = new Date();
@@ -53,32 +54,77 @@ export function MonthView() {
   return (
     <div>
       {/* Month navigation */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <button
           onClick={language === "ar" ? nextMonth : prevMonth}
-          className="p-2 rounded-lg"
-          style={{ background: "var(--card-bg)", border: "1px solid var(--border)", color: "var(--text)" }}
+          className="p-2 rounded-xl transition-all"
+          style={{
+            background: "var(--card-bg)",
+            border: "1px solid var(--border)",
+            color: "var(--text)",
+            boxShadow: "0 1px 4px var(--shadow)",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={18} />
         </button>
 
         <div className="text-center">
           <h2
-            className="text-2xl font-bold"
+            className="text-2xl font-bold tracking-tight"
             style={{ color: "var(--text)", fontFamily: "var(--font)" }}
           >
             {monthNames[language][month]}
           </h2>
-          <div className="text-sm" style={{ color: "var(--text-muted)" }}>{year}</div>
+          <div
+            className="text-xs mt-0.5 inline-flex items-center px-2.5 py-0.5 rounded-full"
+            style={{
+              color: "var(--text-muted)",
+              background: "var(--card-bg)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            {year}
+          </div>
         </div>
 
-        <button
-          onClick={language === "ar" ? prevMonth : nextMonth}
-          className="p-2 rounded-lg"
-          style={{ background: "var(--card-bg)", border: "1px solid var(--border)", color: "var(--text)" }}
-        >
-          <ChevronRight size={20} />
-        </button>
+        <div className="flex items-center gap-2">
+          {(year !== today.getFullYear() || month !== today.getMonth()) && (
+            <button
+              onClick={() => {
+                setYear(today.getFullYear());
+                setMonth(today.getMonth());
+              }}
+              className="px-3 py-1.5 rounded-xl text-sm font-medium transition-all"
+              style={{
+                background: "var(--card-bg)",
+                border: "1px solid var(--border)",
+                color: "var(--accent)",
+                fontFamily: "var(--font)",
+                boxShadow: "0 1px 4px var(--shadow)",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.background = `color-mix(in srgb, var(--accent) 8%, var(--card-bg))`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "var(--card-bg)"; }}
+            >
+              {t("today")}
+            </button>
+          )}
+          <button
+            onClick={language === "ar" ? prevMonth : nextMonth}
+            className="p-2 rounded-xl transition-all"
+            style={{
+              background: "var(--card-bg)",
+              border: "1px solid var(--border)",
+              color: "var(--text)",
+              boxShadow: "0 1px 4px var(--shadow)",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Calendar grid */}
@@ -131,7 +177,7 @@ export function MonthView() {
                     setSelectedDate(dateStr);
                     setViewMode("daily");
                   }}
-                  className="relative cursor-pointer transition-colors group hover:brightness-105"
+                  className="relative cursor-pointer transition-colors group flex flex-col justify-between hover:brightness-105"
                   style={{
                     minHeight: "90px",
                     background: isSelected
@@ -161,37 +207,32 @@ export function MonthView() {
                         e.stopPropagation();
                         setAddingNoteDate(dateStr);
                       }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-[var(--accent-light)]/20"
                       style={{ color: "var(--accent)" }}
                     >
                       <Plus size={14} />
                     </button>
                   </div>
 
-                  {/* Note mood dots (compact) */}
+                  {/* Note mood dots (compact, 1-3 dots) */}
                   {dayNotes.length > 0 && (
-                    <div className="px-2 pb-2 flex flex-wrap gap-1">
-                      {dayNotes.slice(0, 5).map((note) => (
-                        <div
-                          key={note.id}
-                          className="rounded"
-                          style={{
-                            width: "18px",
-                            height: "18px",
-                            background: moodColors[note.mood] ?? moodColors.none,
-                            fontSize: "10px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                          title={note.title || note.content.slice(0, 20)}
-                        >
-                          {note.type === "voice" ? "🎙️" : note.type === "image" ? "🖼️" : ""}
-                        </div>
-                      ))}
-                      {dayNotes.length > 5 && (
-                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                          +{dayNotes.length - 5}
+                    <div className="px-2 pb-2 flex items-center gap-1.5 mt-auto">
+                      {Array.from(new Set(dayNotes.map((n) => n.mood)))
+                        .slice(0, 3)
+                        .map((m, idx) => (
+                          <span
+                            key={idx}
+                            className="w-2 h-2 rounded-full inline-block"
+                            style={{
+                              background: moodColors[m] ?? moodColors.none,
+                              boxShadow: `0 0 4px ${moodColors[m] ?? moodColors.none}88`,
+                            }}
+                            title={t(m as any)}
+                          />
+                        ))}
+                      {dayNotes.length > 3 && (
+                        <span className="text-[10px] font-semibold" style={{ color: "var(--text-muted)" }}>
+                          +{dayNotes.length - 3}
                         </span>
                       )}
                     </div>

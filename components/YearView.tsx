@@ -11,7 +11,8 @@ const DAY_LETTERS_AR = ["ن", "ث", "ر", "خ", "ج", "س", "ح"];
 const DAY_LETTERS_FR = ["L", "M", "M", "J", "V", "S", "D"];
 
 export function YearView() {
-  const { language, notes, selectedDate, setSelectedDate, setViewMode } = useStore();
+  const { language, selectedDate, setSelectedDate, setViewMode, getUserNotes } = useStore();
+  const notes = getUserNotes();
   const t = useT(language);
 
   const today = new Date();
@@ -62,15 +63,18 @@ export function YearView() {
         <div className="flex items-center gap-3">
           <button
             onClick={language === "ar" ? nextYear : prevYear}
-            className="p-2.5 rounded-xl transition-all hover:scale-105"
+            className="p-2 rounded-xl transition-all"
             style={{
               background: "var(--card-bg)",
               border: "1px solid var(--border)",
               color: "var(--text)",
+              boxShadow: "0 1px 4px var(--shadow)",
             }}
-            title="Previous Year"
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+            title={language === "ar" ? "السنة القادمة" : "Previous Year"}
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={18} />
           </button>
 
           <h2
@@ -82,25 +86,32 @@ export function YearView() {
 
           <button
             onClick={language === "ar" ? prevYear : nextYear}
-            className="p-2.5 rounded-xl transition-all hover:scale-105"
+            className="p-2 rounded-xl transition-all"
             style={{
               background: "var(--card-bg)",
               border: "1px solid var(--border)",
               color: "var(--text)",
+              boxShadow: "0 1px 4px var(--shadow)",
             }}
-            title="Next Year"
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+            title={language === "ar" ? "السنة السابقة" : "Next Year"}
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={18} />
           </button>
 
           {year !== today.getFullYear() && (
             <button
               onClick={goCurrentYear}
-              className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all"
+              className="text-xs px-3 py-1.5 rounded-xl font-medium transition-all"
               style={{
-                background: "var(--accent)",
-                color: "var(--btn-text)",
+                background: "var(--card-bg)",
+                border: "1px solid var(--border)",
+                color: "var(--accent)",
+                boxShadow: "0 1px 4px var(--shadow)",
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.background = `color-mix(in srgb, var(--accent) 8%, var(--card-bg))`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "var(--card-bg)"; }}
             >
               {t("today")} ({today.getFullYear()})
             </button>

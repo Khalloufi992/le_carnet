@@ -7,9 +7,10 @@ import { DayColumn } from "./DayColumn";
 import { NoteModal } from "./NoteModal";
 
 export function WeekView() {
-  const { language, selectedWeek, selectedYear, selectedDate, setSelectedDate, setSelectedWeek, notes } = useStore();
+  const { language, selectedWeek, selectedYear, selectedDate, setSelectedDate, setSelectedWeek, getUserNotes } = useStore();
   const t = useT(language);
   const [addingNoteDate, setAddingNoteDate] = useState<string | null>(null);
+  const notes = getUserNotes();
 
   const weekDates = getWeekDates(selectedWeek, selectedYear);
   const totalWeeks = getWeeksInYear(selectedYear);
@@ -55,20 +56,37 @@ export function WeekView() {
   return (
     <div>
       {/* Week navigation */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <button
           onClick={prevWeek}
-          className="p-2 rounded-lg transition-colors"
-          style={{ background: "var(--card-bg)", border: "1px solid var(--border)", color: "var(--text)" }}
+          className="p-2 rounded-xl transition-all"
+          style={{
+            background: "var(--card-bg)",
+            border: "1px solid var(--border)",
+            color: "var(--text)",
+            boxShadow: "0 1px 4px var(--shadow)",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
         >
-          {language === "ar" ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          {language === "ar" ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
 
         <div className="text-center">
-          <div className="font-bold text-lg" style={{ color: "var(--text)", fontFamily: "var(--font)" }}>
+          <div
+            className="font-bold text-lg tracking-tight"
+            style={{ color: "var(--text)", fontFamily: "var(--font)" }}
+          >
             {monthRange}
           </div>
-          <div className="text-sm" style={{ color: "var(--text-muted)" }}>
+          <div
+            className="text-xs mt-0.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full"
+            style={{
+              color: "var(--text-muted)",
+              background: "var(--card-bg)",
+              border: "1px solid var(--border)",
+            }}
+          >
             {t("week")} {selectedWeek} / {totalWeeks}
           </div>
         </div>
@@ -76,22 +94,32 @@ export function WeekView() {
         <div className="flex items-center gap-2">
           <button
             onClick={goToToday}
-            className="px-3 py-1.5 rounded-lg text-sm transition-colors"
+            className="px-3 py-1.5 rounded-xl text-sm font-medium transition-all"
             style={{
               background: "var(--card-bg)",
               border: "1px solid var(--border)",
               color: "var(--accent)",
               fontFamily: "var(--font)",
+              boxShadow: "0 1px 4px var(--shadow)",
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.background = `color-mix(in srgb, var(--accent) 8%, var(--card-bg))`; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "var(--card-bg)"; }}
           >
             {t("today")}
           </button>
           <button
             onClick={nextWeek}
-            className="p-2 rounded-lg transition-colors"
-            style={{ background: "var(--card-bg)", border: "1px solid var(--border)", color: "var(--text)" }}
+            className="p-2 rounded-xl transition-all"
+            style={{
+              background: "var(--card-bg)",
+              border: "1px solid var(--border)",
+              color: "var(--text)",
+              boxShadow: "0 1px 4px var(--shadow)",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
           >
-            {language === "ar" ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+            {language === "ar" ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           </button>
         </div>
       </div>

@@ -8,12 +8,13 @@ import { NoteModal } from "./NoteModal";
 import { MoodStrip } from "./MoodStrip";
 
 export function DayView() {
-  const { language, selectedDate, setSelectedDate, notes } = useStore();
+  const { language, selectedDate, setSelectedDate, getUserNotes } = useStore();
   const t = useT(language);
   const [addingNote, setAddingNote] = useState(false);
   const [initialMoodForNew, setInitialMoodForNew] = useState<Mood>("none");
 
   const dateObj = new Date(selectedDate + "T12:00:00");
+  const notes = getUserNotes();
   const dayNotes = notes.filter((n) => n.date === selectedDate);
 
   const prevDay = () => {
@@ -40,27 +41,41 @@ export function DayView() {
   return (
     <div>
       {/* Day navigation */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <button
           onClick={language === "ar" ? nextDay : prevDay}
-          className="p-2 rounded-lg"
-          style={{ background: "var(--card-bg)", border: "1px solid var(--border)", color: "var(--text)" }}
+          className="p-2 rounded-xl transition-all"
+          style={{
+            background: "var(--card-bg)",
+            border: "1px solid var(--border)",
+            color: "var(--text)",
+            boxShadow: "0 1px 4px var(--shadow)",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={18} />
         </button>
 
         <div className="text-center">
           <div
-            className="font-bold text-xl"
+            className="font-bold text-xl tracking-tight"
             style={{ color: "var(--text)", fontFamily: "var(--font)" }}
           >
             {formatDate(dateObj, language)}
           </div>
-          <div className="text-sm" style={{ color: "var(--text-muted)" }}>
-            {t("week")} {getISOWeek(dateObj)}
+          <div
+            className="text-xs mt-0.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full"
+            style={{
+              color: "var(--text-muted)",
+              background: "var(--card-bg)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <span>{t("week")} {getISOWeek(dateObj)}</span>
             {isToday && (
               <span
-                className="ml-2 px-2 py-0.5 rounded-full text-xs"
+                className="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
                 style={{ background: "var(--accent)", color: "var(--btn-text)" }}
               >
                 {t("today")}
@@ -73,23 +88,33 @@ export function DayView() {
           {!isToday && (
             <button
               onClick={goToday}
-              className="px-3 py-1.5 rounded-lg text-sm"
+              className="px-3 py-1.5 rounded-xl text-sm font-medium transition-all"
               style={{
                 background: "var(--card-bg)",
                 border: "1px solid var(--border)",
                 color: "var(--accent)",
                 fontFamily: "var(--font)",
+                boxShadow: "0 1px 4px var(--shadow)",
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.background = `color-mix(in srgb, var(--accent) 8%, var(--card-bg))`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "var(--card-bg)"; }}
             >
               {t("today")}
             </button>
           )}
           <button
             onClick={language === "ar" ? prevDay : nextDay}
-            className="p-2 rounded-lg"
-            style={{ background: "var(--card-bg)", border: "1px solid var(--border)", color: "var(--text)" }}
+            className="p-2 rounded-xl transition-all"
+            style={{
+              background: "var(--card-bg)",
+              border: "1px solid var(--border)",
+              color: "var(--text)",
+              boxShadow: "0 1px 4px var(--shadow)",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={18} />
           </button>
         </div>
       </div>
@@ -119,10 +144,19 @@ export function DayView() {
                 setInitialMoodForNew("none");
                 setAddingNote(true);
               }}
-              className="theme-btn flex items-center gap-2 px-4 py-2 text-sm shadow-sm"
+              className="theme-btn flex items-center gap-2 px-4 py-2 text-sm shadow-md"
+              style={{ borderRadius: "10px" }}
             >
-              <Plus size={16} />
+              <Plus size={15} />
               {t("addNote")}
+              {dayNotes.length > 0 && (
+                <span
+                  className="ml-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
+                  style={{ background: "rgba(255,255,255,0.25)" }}
+                >
+                  {dayNotes.length}
+                </span>
+              )}
             </button>
           </div>
 

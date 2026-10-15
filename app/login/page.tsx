@@ -132,8 +132,43 @@ export default function LoginPage() {
         darkMode
           ? "from-neutral-950 via-stone-900 to-zinc-900"
           : "from-green-50 via-emerald-50 to-green-100"
-      } p-4 py-8`}
+      } p-4 py-8 relative overflow-hidden`}
     >
+      {/* Decorative background blobs */}
+      <div
+        className="login-bg-blob"
+        style={{
+          width: "300px",
+          height: "300px",
+          background: "var(--accent)",
+          top: "-50px",
+          left: "-80px",
+          animationDelay: "0s",
+        }}
+      />
+      <div
+        className="login-bg-blob"
+        style={{
+          width: "200px",
+          height: "200px",
+          background: "var(--accent-light)",
+          bottom: "10%",
+          right: "-40px",
+          animationDelay: "4s",
+        }}
+      />
+      <div
+        className="login-bg-blob"
+        style={{
+          width: "150px",
+          height: "150px",
+          background: "var(--accent)",
+          bottom: "25%",
+          left: "20%",
+          animationDelay: "8s",
+        }}
+      />
+
       {/* Top Controls: Dark Mode & Language */}
       <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
         <DarkModeToggle />
@@ -160,14 +195,17 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="w-full max-w-md my-4">
+      <div className="w-full max-w-md my-4 relative z-10">
         {/* Logo */}
         <div className="text-center mb-6">
           <div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-3 shadow-lg"
-            style={{ background: "var(--card-bg)", boxShadow: "0 4px 16px var(--shadow)" }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-lg"
+            style={{
+              background: "var(--accent)",
+              boxShadow: "0 8px 24px var(--shadow), 0 2px 8px rgba(0,0,0,0.1)",
+            }}
           >
-            <BookOpen size={30} style={{ color: "var(--accent)" }} />
+            <BookOpen size={28} color="var(--btn-text)" />
           </div>
           <h1
             className="text-3xl font-bold mb-1"
@@ -199,8 +237,11 @@ export default function LoginPage() {
 
         {/* Card */}
         <div
-          className="carnet-card p-6 md:p-8 fade-in shadow-xl"
-          style={{ borderRadius: "16px" }}
+          className="carnet-card p-6 md:p-8 fade-in shadow-xl relative z-10"
+          style={{
+            borderRadius: "20px",
+            boxShadow: "0 24px 80px var(--shadow), 0 4px 16px rgba(0,0,0,0.08)",
+          }}
         >
           {/* Header tabs (Login / Register) */}
           <div
@@ -652,6 +693,16 @@ export default function LoginPage() {
               </>
             )}
           </div>
+        </div>
+
+        {/* Decorative branding below card */}
+        <div
+          className="mt-6 text-center text-xs opacity-60 flex items-center justify-center gap-2"
+          style={{ color: "var(--text-muted)" }}
+        >
+          <span className="w-8 h-[1px] bg-current opacity-30 inline-block" />
+          <span>{t("appName")}</span>
+          <span className="w-8 h-[1px] bg-current opacity-30 inline-block" />
         </div>
       </div>
 
